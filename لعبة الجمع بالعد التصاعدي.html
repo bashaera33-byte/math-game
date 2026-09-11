@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رِحْلَةُ الْفَرَاشَةِ: الْجَمْعُ بِالْعَدِّ التَّصَاعُدِيِّ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#FDF4FF;
+    --bg-bot:#F2E9FF;
+    --card:#FFFFFF;
+    --purple-deep:#5E3A85;
+    --purple-mid:#8C5FC2;
+    --pink:#FF7FA6;
+    --pink-light:#FFE1EC;
+    --yellow:#FFC94A;
+    --green:#6FC17A;
+    --text:#3A2A4A;
+    --stone:#F3E9FC;
+    --stone-border:#D9BCEF;
+    --stone-done:#C9F2CE;
+    --stone-done-border:#7ED08A;
+    --stone-current:#FFD9E6;
+    --stone-current-border:#FF7FA6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 15%, #FFE9F3 0%, transparent 40%),
+      radial-gradient(circle at 88% 10%, #E9DFFF 0%, transparent 38%),
+      radial-gradient(circle at 90% 90%, #FFF3D6 0%, transparent 35%),
+      linear-gradient(180deg, var(--bg-top), var(--bg-bot));
+    font-family:'Cairo', sans-serif;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 14px;
+    overflow-x:hidden;
+  }
+
+  .deco{position:fixed; font-size:34px; opacity:.55; pointer-events:none; user-select:none; filter:drop-shadow(0 4px 6px rgba(0,0,0,.05));}
+  .deco.d1{top:6%; left:6%; animation:float 7s ease-in-out infinite;}
+  .deco.d2{top:14%; right:8%; animation:float 8s ease-in-out infinite .5s;}
+  .deco.d3{bottom:8%; left:10%; animation:float 6.5s ease-in-out infinite 1s;}
+  .deco.d4{bottom:12%; right:6%; animation:float 7.5s ease-in-out infinite 1.5s;}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-4deg);} 50%{transform:translateY(-14px) rotate(4deg);}}
+
+  .wrap{width:100%; max-width:560px;}
+
+  .card{
+    background:var(--card);
+    border-radius:38px 38px 60px 38px;
+    box-shadow:0 24px 50px -20px rgba(93,50,140,.35), 0 2px 0 rgba(255,255,255,.6) inset;
+    padding:28px 24px 26px;
+    position:relative;
+    border:2px solid #F1E1FF;
+  }
+
+  .top-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .brand{
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:var(--purple-mid);
+    letter-spacing:.5px;
+  }
+  .stars-box{
+    display:flex; align-items:center; gap:6px;
+    background:var(--pink-light);
+    border:2px solid #FFC9DB;
+    padding:6px 14px;
+    border-radius:20px;
+    font-weight:700;
+    font-size:15px;
+    color:#B14A73;
+  }
+  .sound-btn{
+    width:38px; height:38px;
+    border-radius:50%;
+    border:2px solid #FFC9DB;
+    background:var(--pink-light);
+    font-size:17px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease;
+    padding:0;
+  }
+  .sound-btn:active{transform:scale(.88);}
+
+  h1{
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:26px;
+    font-weight:800;
+    color:var(--purple-deep);
+    margin:10px 0 4px;
+    line-height:1.35;
+  }
+  .subtitle{
+    font-size:15px;
+    color:#7A6690;
+    margin:0 0 18px;
+    line-height:1.8;
+  }
+
+  /* ---------- level select screen ---------- */
+  .levels{display:flex; flex-direction:column; gap:14px; margin-top:6px;}
+  .level-btn{
+    border:none;
+    cursor:pointer;
+    text-align:right;
+    border-radius:22px;
+    padding:18px 20px;
+    font-family:'Cairo', sans-serif;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 10px 22px -12px rgba(93,50,140,.4);
+  }
+  .level-btn:hover{transform:translateY(-2px);}
+  .level-btn:active{transform:translateY(1px) scale(.99);}
+  .level1{background:linear-gradient(135deg,#B98CF0,#8C5FC2); color:#fff;}
+  .level2{background:linear-gradient(135deg,#FF9DBB,#FF7FA6); color:#fff;}
+  .level-emoji{font-size:30px;}
+  .level-texts{display:flex; flex-direction:column; gap:2px;}
+  .level-title{font-family:'Baloo Bhaijaan 2', sans-serif; font-weight:700; font-size:18px;}
+  .level-sub{font-size:13px; opacity:.92;}
+
+  /* ---------- game screen ---------- */
+  .hidden{display:none !important;}
+
+  .equation-box{
+    background:linear-gradient(135deg,#FBF2FF,#FDEFF6);
+    border:2px dashed #E4C6F7;
+    border-radius:24px;
+    padding:16px 10px;
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .equation{
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:40px;
+    font-weight:800;
+    color:var(--purple-deep);
+    letter-spacing:2px;
+    direction:ltr;
+  }
+  .equation .qmark{color:var(--pink);}
+  .equation-hint{
+    font-size:14px;
+    color:#8A749C;
+    margin-top:6px;
+  }
+
+  .position-indicator{
+    text-align:center;
+    margin-bottom:14px;
+    font-weight:700;
+    font-size:15px;
+    color:var(--purple-mid);
+  }
+  .position-indicator span{color:var(--pink); font-family:'Baloo Bhaijaan 2', sans-serif;}
+
+  .path-wrap{
+    position:relative;
+    background:linear-gradient(180deg,#F8F1FF,#FFFFFF);
+    border-radius:24px;
+    padding:34px 14px 18px;
+    margin-bottom:16px;
+    border:2px solid #EFE0FB;
+    min-height:118px;
+  }
+  .path-wrap.shake{animation:shake .45s ease;}
+
+  .mental-options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:16px;
+  }
+  .mental-option{
+    border:2.5px solid var(--stone-border);
+    background:var(--stone);
+    border-radius:20px;
+    padding:18px 10px;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:26px;
+    font-weight:800;
+    color:var(--purple-deep);
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .mental-option:hover:not(:disabled){transform:translateY(-2px) scale(1.04);}
+  .mental-option:disabled{cursor:default;}
+  .mental-option.mo-correct{
+    background:var(--stone-done);
+    border-color:var(--stone-done-border);
+    color:#2E7D3B;
+  }
+  .mental-option.mo-wrong{
+    background:#FFE0E3;
+    border-color:#F0576C;
+    color:#C23B4E;
+    opacity:.6;
+  }
+  .stones-row{
+    direction:ltr;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px 8px;
+    position:relative;
+    z-index:1;
+  }
+  .stone{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:var(--stone);
+    border:2.5px solid var(--stone-border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:14px;
+    color:#8A749C;
+    cursor:pointer;
+    transition:all .18s ease;
+    position:relative;
+    flex:0 0 auto;
+  }
+  .stone.start{
+    background:var(--purple-mid);
+    border-color:var(--purple-deep);
+    color:#fff;
+    box-shadow:0 0 0 4px #EADBFC;
+  }
+  .stone:hover{transform:scale(1.1);}
+  .stone.visited{
+    background:var(--stone-done);
+    border-color:var(--stone-done-border);
+    color:#2E7D3B;
+  }
+  .stone.current{
+    background:var(--stone-current);
+    border-color:var(--stone-current-border);
+    color:#B14A73;
+    box-shadow:0 0 0 4px #FFE1EC;
+  }
+  .stone.shake{animation:shake .45s ease;}
+  .stone.wrong{
+    background:#FFE0E3 !important;
+    border-color:#F0576C !important;
+    color:#C23B4E !important;
+  }
+  @keyframes shake{0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);}}
+
+  .butterfly{
+    position:absolute;
+    font-size:30px;
+    transform:translate(-50%,-50%);
+    transition:top .45s cubic-bezier(.34,1.56,.64,1), left .45s cubic-bezier(.34,1.56,.64,1);
+    z-index:2;
+    pointer-events:none;
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.15));
+  }
+  .butterfly.jump{animation:jump .45s ease;}
+  @keyframes jump{0%{transform:translate(-50%,-50%) scale(1);} 40%{transform:translate(-50%,-140%) scale(1.15);} 100%{transform:translate(-50%,-50%) scale(1);}}
+
+  .msg-box{
+    min-height:30px;
+    text-align:center;
+    font-weight:700;
+    font-size:15px;
+    margin-bottom:12px;
+    color:var(--purple-mid);
+    transition:opacity .2s ease;
+  }
+  .msg-box.correct{color:#2E9143;}
+  .msg-box.wrong{
+    color:#D6304A;
+    background:#FFE7EA;
+    border:2px solid #F6B3BD;
+    border-radius:14px;
+    padding:6px 12px;
+    display:inline-block;
+  }
+
+  .actions{display:flex; gap:10px;}
+  .btn{
+    flex:1;
+    border:none;
+    cursor:pointer;
+    border-radius:18px;
+    padding:13px 10px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    transition:transform .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-secondary{background:#F1E4FB; color:var(--purple-deep);}
+  .btn-primary{background:linear-gradient(135deg,#FF9DBB,#FF7FA6); color:#fff;}
+  .btn-primary:disabled{opacity:.45; cursor:not-allowed;}
+
+  .back-link{
+    display:inline-block;
+    margin-top:14px;
+    font-size:13px;
+    color:#9C86AF;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+
+  /* celebration overlay */
+  .celebrate{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(94,58,133,.35);
+    z-index:50;
+  }
+  .celebrate-card{
+    background:#fff;
+    border-radius:32px;
+    padding:34px 28px;
+    text-align:center;
+    max-width:320px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.4);
+  }
+  .celebrate-emoji{font-size:54px; margin-bottom:8px;}
+  .celebrate-title{font-family:'Baloo Bhaijaan 2', sans-serif; font-size:24px; font-weight:800; color:var(--purple-deep); margin-bottom:6px;}
+  .celebrate-eq{font-size:26px; font-weight:800; color:var(--pink); direction:ltr; margin-bottom:16px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  @media (max-width:380px){
+    h1{font-size:22px;}
+    .equation{font-size:32px;}
+    .stone{width:34px; height:34px; font-size:13px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="deco d1">🌸</div>
+<div class="deco d2">🦋</div>
+<div class="deco d3">🌷</div>
+<div class="deco d4">✨</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <div class="top-row">
+      <div class="brand">حَدِيقَةُ الْأَعْدَادِ 🌼</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="sound-btn" id="soundBtn" onclick="toggleSound()" aria-label="تشغيل الصوت أو إيقافه">🔊</button>
+        <div class="stars-box" id="starsBox">🏆 <span id="starsCount">٠</span> نُقْطَة</div>
+      </div>
+    </div>
+
+    <!-- ============ SCREEN 1: LEVEL SELECT ============ -->
+    <div id="screenLevels">
+      <h1>رِحْلَةُ الْفَرَاشَةِ 🦋</h1>
+      <p class="subtitle">
+        سَاعِدِي الْفَرَاشَةَ الصَّغِيرَةَ عَلَى الْقَفْزِ فَوْقَ الْأَزْهَارِ لِتَتَعَلَّمِي الْجَمْعَ
+        بِطَرِيقَةِ الْعَدِّ التَّصَاعُدِيِّ: نَبْدَأُ مِنَ الْعَدَدِ الْأَكْبَرِ، ثُمَّ نُكْمِلُ الْعَدَّ
+        إِلَى الْأَمَامِ بِمِقْدَارِ الْعَدَدِ الْآخَرِ.
+      </p>
+      <div class="levels">
+        <button class="level-btn level1" onclick="startLevel(1)">
+          <span class="level-emoji">🌱</span>
+          <span class="level-texts">
+            <span class="level-title">الْمُسْتَوَى الْأَوَّلُ</span>
+            <span class="level-sub">جَمْعٌ ضِمْنَ الْعَدَدِ ١٠</span>
+          </span>
+        </button>
+        <button class="level-btn level2" onclick="startLevel(2)">
+          <span class="level-emoji">🌺</span>
+          <span class="level-texts">
+            <span class="level-title">الْمُسْتَوَى الثَّانِي</span>
+            <span class="level-sub">جَمْعٌ ضِمْنَ الْعَدَدِ ٢٠</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ SCREEN 2: GAME ============ -->
+    <div id="screenGame" class="hidden">
+      <h1 style="font-size:19px; margin-bottom:2px;">اُنْظُرِي إِلَى الْمَسْأَلَةِ 👇</h1>
+      <p class="subtitle" id="gameSubtitle" style="margin-bottom:14px;">
+        اِقْفِزِي بِالْفَرَاشَةِ خُطْوَةً خُطْوَةً عَلَى الْمَسَارِ وَأَنْتِ تَعُدِّينَ فِي عَقْلِكِ، ثُمَّ اضْغَطِي
+        زِرَّ «تَحَقَّقِي مِنْ إِجَابَتِي» عِنْدَمَا تَصِلِينَ إِلَى النَّاتِجِ.
+      </p>
+
+      <div class="equation-box">
+        <div class="equation" id="equationText">٥ + ٣ = <span class="qmark">؟</span></div>
+      </div>
+
+      <div id="hopSection">
+        <div class="position-indicator">
+          🦋 الْفَرَاشَةُ الْآنَ عِنْدَ الْعَدَدِ: <span id="posNum">٥</span>
+        </div>
+
+        <div class="path-wrap" id="pathWrap">
+          <div class="butterfly" id="butterfly">🦋</div>
+          <div class="stones-row" id="stonesRow"></div>
+        </div>
+      </div>
+
+      <div id="mentalSection" class="hidden">
+        <div class="mental-options" id="mentalOptions"></div>
+      </div>
+
+      <div class="msg-box" id="msgBox">اِبْدَئِي الْقَفْزَ مِنْ عِنْدِ الْفَرَاشَةِ 🌸</div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">تَحَقَّقِي مِنْ إِجَابَتِي ✅</button>
+        <button class="btn btn-secondary" onclick="newProblem()">مَسْأَلَةٌ جَدِيدَةٌ</button>
+      </div>
+
+      <div style="text-align:center;">
+        <span class="back-link" onclick="goToLevels()">↩ الرُّجُوعُ إِلَى اخْتِيَارِ الْمُسْتَوَى</span>
+        <br>
+        <span class="back-link" onclick="showResults()">🏁 إِنْهَاءُ اللَّعِبِ وَعَرْضُ نَتِيجَتِي</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- celebration overlay -->
+<div id="celebrateOverlay" class="celebrate hidden">
+  <div class="celebrate-card">
+    <div class="celebrate-emoji">🏆</div>
+    <div class="celebrate-title">أَحْسَنْتِ! إِجَابَةٌ صَحِيحَةٌ</div>
+    <div class="celebrate-eq" id="celebrateEq">٥ + ٣ = ٨</div>
+    <button class="btn btn-primary" style="width:100%;" onclick="closeCelebration()">مَسْأَلَةٌ جَدِيدَةٌ ✨</button>
+  </div>
+</div>
+
+<!-- results overlay -->
+<div id="resultsOverlay" class="celebrate hidden">
+  <div class="celebrate-card">
+    <div class="celebrate-emoji">🌟</div>
+    <div class="celebrate-title">مَجْمُوعُ نِقَاطِكِ</div>
+    <div class="celebrate-eq" id="resultsPoints">٠ نُقْطَة</div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-secondary" style="width:100%;" onclick="closeResults()">مُتَابَعَةُ اللَّعِبِ</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="restartFromResults()">ابْدَئِي مِنْ جَدِيدٍ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicNum(n){
+  return String(n).split('').map(ch => /[0-9]/.test(ch) ? arabicDigits[+ch] : ch).join('');
+}
+
+let soundOn = true;
+let audioCtx = null;
+function getAudioCtx(){
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function toggleSound(){
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+}
+function playTone(freq, duration, type){
+  if (!soundOn) return;
+  try{
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }catch(e){}
+}
+function playClickSound(){
+  if (!soundOn) return;
+  playTone(950, 0.045, 'square');
+}
+
+function playSuccessJingle(){
+  if (!soundOn) return;
+  const notes = [523.25, 659.25, 783.99, 1046.5];
+  notes.forEach((f, i) => setTimeout(() => playTone(f, 0.18, 'sine'), i * 140));
+}
+
+function playGentleWrongTone(){
+  if (!soundOn) return;
+  playTone(392, 0.16, 'sine');
+  setTimeout(() => playTone(311.13, 0.24, 'sine'), 150);
+}
+
+function playApplause(){
+  if (!soundOn) return;
+  try{
+    const ctx = getAudioCtx();
+    for (let i = 0; i < 9; i++){
+      const t = ctx.currentTime + i * 0.09 + Math.random() * 0.03;
+      const dur = 0.06;
+      const size = Math.floor(ctx.sampleRate * dur);
+      const buffer = ctx.createBuffer(1, size, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let j = 0; j < size; j++){
+        data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / size, 2);
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 1600;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.28;
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(t);
+    }
+  }catch(e){}
+}
+
+const praisePhrases = [
+  'أَحْسَنْتِ! إِجَابَةٌ صَحِيحَةٌ 🎉',
+  'رَائِعَةٌ! أَنْتِ بَارِعَةٌ فِي الْعَدِّ 🌟',
+  'مُمْتَازَةٌ! الْفَرَاشَةُ سَعِيدَةٌ بِكِ 🦋💕',
+  'مَبْرُوكٌ! عَدُّكِ التَّصَاعُدِيُّ صَحِيحٌ 👏',
+  'تَأَلَّقْتِ! إِجَابَةٌ رَائِعَةٌ ✨'
+];
+const tryAgainPhrases = [
+  'لَيْسَتْ هَذِهِ الْإِجَابَةَ، حَاوِلِي مَرَّةً أُخْرَى 🌸',
+  'اِقْتَرَبْتِ! أَعِيدِي الْعَدَّ بِعِنَايَةٍ 🦋',
+  'لَا بَأْسَ، عُدِّي خُطْوَةً خُطْوَةً وَحَاوِلِي مُجَدَّدًا 🌷',
+  'تَحَقَّقِي مِنْ عَدِّكِ ثُمَّ جَرِّبِي مَرَّةً أُخْرَى 🌼'
+];
+function pickPhrase(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+let level = 1;
+let maxNum = 10;
+let start = 5, addend = 3;
+let currentPos = 5;
+let points = 0;
+let locked = false;
+let questionType = 'hop';
+const POINTS_PER_CORRECT = { 1: 10, 2: 15 };
+
+function startLevel(lv){
+  level = lv;
+  maxNum = lv === 1 ? 10 : 20;
+  document.getElementById('screenLevels').classList.add('hidden');
+  document.getElementById('screenGame').classList.remove('hidden');
+  newProblem();
+}
+
+function goToLevels(){
+  document.getElementById('screenGame').classList.add('hidden');
+  document.getElementById('screenLevels').classList.remove('hidden');
+}
+
+function randInt(min, max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function newProblem(){
+  locked = false;
+  const maxAddend = level === 1 ? 4 : 6;
+  let a, b;
+  do {
+    a = randInt(2, maxNum - 1);
+    b = randInt(1, maxAddend);
+  } while (a + b > maxNum || a + b < 3);
+  // teach counting-on from the larger number
+  start = Math.max(a, b);
+  addend = Math.min(a, b);
+  currentPos = start;
+
+  document.getElementById('equationText').innerHTML =
+    toArabicNum(start) + ' + ' + toArabicNum(addend) + ' = <span class="qmark">؟</span>';
+
+  questionType = Math.random() < 0.35 ? 'mental' : 'hop';
+
+  if (questionType === 'hop'){
+    document.getElementById('hopSection').classList.remove('hidden');
+    document.getElementById('mentalSection').classList.add('hidden');
+    document.getElementById('checkBtn').classList.remove('hidden');
+    document.getElementById('gameSubtitle').textContent =
+      'اِقْفِزِي بِالْفَرَاشَةِ خُطْوَةً خُطْوَةً عَلَى الْمَسَارِ وَأَنْتِ تَعُدِّينَ فِي عَقْلِكِ، ثُمَّ اضْغَطِي زِرَّ «تَحَقَّقِي مِنْ إِجَابَتِي» عِنْدَمَا تَصِلِينَ إِلَى النَّاتِجِ.';
+    buildPath();
+    updatePositionUI();
+    setMsg('اِبْدَئِي الْقَفْزَ مِنْ عِنْدِ الْفَرَاشَةِ 🌸', '');
+  } else {
+    document.getElementById('hopSection').classList.add('hidden');
+    document.getElementById('mentalSection').classList.remove('hidden');
+    document.getElementById('checkBtn').classList.add('hidden');
+    document.getElementById('gameSubtitle').textContent =
+      'اُنْظُرِي إِلَى الْجُمْلَةِ الْعَدَدِيَّةِ وَاحْسِبِي النَّاتِجَ فِي عَقْلِكِ دُونَ قَفْزٍ، ثُمَّ اخْتَارِي الْإِجَابَةَ الصَّحِيحَةَ.';
+    buildMentalOptions(start + addend);
+    setMsg('فَكِّرِي ذِهْنِيًّا ثُمَّ اخْتَارِي الْإِجَابَةَ الصَّحِيحَةَ 🧠✨', '');
+  }
+}
+
+function buildPath(){
+  const row = document.getElementById('stonesRow');
+  row.innerHTML = '';
+  for (let n = 0; n <= maxNum; n++){
+    const s = document.createElement('div');
+    s.className = 'stone';
+    s.dataset.num = n;
+    s.textContent = toArabicNum(n);
+    if (n === start) s.classList.add('start');
+    s.addEventListener('click', () => onStoneClick(n, s));
+    row.appendChild(s);
+  }
+  positionButterfly(start, false);
+  refreshTrail();
+}
+
+function refreshTrail(){
+  const row = document.getElementById('stonesRow');
+  row.querySelectorAll('.stone').forEach(s => {
+    const n = Number(s.dataset.num);
+    s.classList.remove('visited', 'current');
+    if (n > start && n < currentPos) s.classList.add('visited');
+    if (n === currentPos && n !== start) s.classList.add('current');
+  });
+}
+
+function positionButterfly(num, animateJump){
+  const row = document.getElementById('stonesRow');
+  const stone = row.querySelector('[data-num="' + num + '"]');
+  const bfly = document.getElementById('butterfly');
+  if (!stone) return;
+  const rowRect = row.getBoundingClientRect();
+  const stoneRect = stone.getBoundingClientRect();
+  const top = stoneRect.top - rowRect.top - 20;
+  const left = stoneRect.left - rowRect.left + stoneRect.width / 2;
+  bfly.style.top = top + 'px';
+  bfly.style.left = left + 'px';
+  if (animateJump){
+    bfly.classList.remove('jump');
+    void bfly.offsetWidth;
+    bfly.classList.add('jump');
+  }
+}
+
+function updatePositionUI(){
+  document.getElementById('posNum').textContent = toArabicNum(currentPos);
+}
+
+function setMsg(text, kind){
+  const box = document.getElementById('msgBox');
+  box.textContent = text;
+  box.className = 'msg-box' + (kind ? ' ' + kind : '');
+}
+
+function onStoneClick(n, el){
+  if (locked) return;
+  if (n === currentPos) return;
+  if (n < start) return;
+  if (Math.abs(n - currentPos) !== 1){
+    setMsg('اُقْفِزِي خُطْوَةً وَاحِدَةً فِي كُلِّ مَرَّةٍ 🦋', '');
+    return;
+  }
+  playClickSound();
+  currentPos = n;
+  positionButterfly(n, true);
+  updatePositionUI();
+  refreshTrail();
+  setMsg('🦋 اِسْتَمِرِّي بِالْعَدِّ فِي عَقْلِكِ...', '');
+}
+
+function checkAnswer(){
+  if (locked) return;
+  const sum = start + addend;
+  const pathWrap = document.getElementById('pathWrap');
+  if (currentPos === sum){
+    locked = true;
+    const phrase = pickPhrase(praisePhrases);
+    setMsg(phrase, 'correct');
+    playApplause();
+    playSuccessJingle();
+    points += POINTS_PER_CORRECT[level];
+    document.getElementById('starsCount').textContent = toArabicNum(points);
+    setTimeout(() => showCelebration(start, addend, sum), 900);
+  } else {
+    const phrase = pickPhrase(tryAgainPhrases);
+    setMsg(phrase, 'wrong');
+    playGentleWrongTone();
+    pathWrap.classList.add('shake');
+    setTimeout(() => pathWrap.classList.remove('shake'), 450);
+  }
+}
+
+function buildMentalOptions(correct){
+  const box = document.getElementById('mentalOptions');
+  box.innerHTML = '';
+  const options = new Set([correct]);
+  let guard = 0;
+  while (options.size < 4 && guard < 60){
+    guard++;
+    const delta = randInt(-4, 4);
+    const candidate = correct + delta;
+    if (candidate < 1 || candidate > maxNum || candidate === correct) continue;
+    options.add(candidate);
+  }
+  const arr = Array.from(options);
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  arr.forEach(num => {
+    const btn = document.createElement('button');
+    btn.className = 'mental-option';
+    btn.textContent = toArabicNum(num);
+    btn.addEventListener('click', () => onMentalAnswer(num, correct, btn));
+    box.appendChild(btn);
+  });
+}
+
+function onMentalAnswer(chosen, correct, btn){
+  if (locked || btn.disabled) return;
+  if (chosen === correct){
+    locked = true;
+    document.querySelectorAll('.mental-option').forEach(b => b.disabled = true);
+    btn.classList.add('mo-correct');
+    const phrase = pickPhrase(praisePhrases);
+    setMsg(phrase, 'correct');
+    playApplause();
+    playSuccessJingle();
+    points += POINTS_PER_CORRECT[level];
+    document.getElementById('starsCount').textContent = toArabicNum(points);
+    setTimeout(() => showCelebration(start, addend, correct), 900);
+  } else {
+    btn.disabled = true;
+    btn.classList.add('mo-wrong');
+    const phrase = pickPhrase(tryAgainPhrases);
+    setMsg(phrase, 'wrong');
+    playGentleWrongTone();
+  }
+}
+
+function showResults(){
+  document.getElementById('resultsPoints').textContent = toArabicNum(points) + ' نُقْطَة';
+  document.getElementById('resultsOverlay').classList.remove('hidden');
+}
+
+function closeResults(){
+  document.getElementById('resultsOverlay').classList.add('hidden');
+}
+
+function restartFromResults(){
+  points = 0;
+  document.getElementById('starsCount').textContent = toArabicNum(points);
+  document.getElementById('resultsOverlay').classList.add('hidden');
+  goToLevels();
+}
+
+function showCelebration(a, b, sum){
+  document.getElementById('celebrateEq').textContent =
+    toArabicNum(a) + ' + ' + toArabicNum(b) + ' = ' + toArabicNum(sum);
+  document.getElementById('celebrateOverlay').classList.remove('hidden');
+}
+
+function closeCelebration(){
+  document.getElementById('celebrateOverlay').classList.add('hidden');
+  newProblem();
+}
+
+window.addEventListener('resize', () => positionButterfly(currentPos, false));
+</script>
+
+</body>
+</html>
